@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>No Cookie Site</title>
+    <title>No Cookie Website</title>
     <style>
       *,
       *::before,
@@ -104,21 +104,6 @@
         color: var(--text);
       }
 
-      .counter-badge {
-        display: inline-block;
-        background: #fef3c7;
-        color: #92400e;
-        border: 1px solid #fcd34d;
-        border-radius: 999px;
-        font-size: 0.78rem;
-        font-weight: 600;
-        padding: 0.2rem 0.75rem;
-        margin: 0.6rem 0 0.9rem;
-      }
-      .counter-badge.hidden {
-        display: none;
-      }
-
       #accept-btn {
         display: block;
         width: 100%;
@@ -141,13 +126,6 @@
       #accept-btn:disabled {
         opacity: 0.6;
         cursor: default;
-      }
-
-      .saving-notice {
-        font-size: 0.8rem;
-        color: var(--muted);
-        margin-top: 0.6rem;
-        min-height: 1.2em;
       }
 
       /* ── main content ── */
@@ -302,16 +280,13 @@
         <p>This website <strong>doesn't use cookies</strong>.</p>
         <p>No tracking. No analytics. No data collection. Nothing at all.</p>
 
-        <span id="counter-badge" class="counter-badge hidden"></span>
-
-        <button id="accept-btn" onclick="acceptCookies()">Got it, don't show again</button>
-        <p class="saving-notice" id="saving-notice"></p>
+        <button id="accept-btn" onclick="acceptCookies()">Got it!</button>
       </div>
     </div>
 
     <!-- ── Page Content ── -->
     <header>
-      <h1>No Cookie Site 🍪</h1>
+      <h1>No Cookie Website 🍪</h1>
       <p>The world's most honest cookie notice experience</p>
     </header>
 
@@ -322,7 +297,7 @@
           <span class="panel-num">1</span>
           <div class="panel-fig">🧑‍💻</div>
           <div class="bubble">Finally a website that respects my privacy!</div>
-          <p class="panel-caption">User visits the site.</p>
+          <p class="panel-caption">User visits the website.</p>
         </div>
 
         <div class="panel">
@@ -340,9 +315,9 @@
           <span class="panel-num">3</span>
           <div class="panel-fig">🖱️</div>
           <div class="bubble up">Got it!</div>
-          <div class="panel-fig" style="font-size: 1.2rem">...</div>
-          <div class="bubble">Saving your preference…</div>
-          <p class="panel-caption">User clicks the button.<br /><em>Preference is "saved".</em></p>
+          <div class="panel-fig">🏠</div>
+          <div class="bubble">Wow, actual content!</div>
+          <p class="panel-caption">User clicks. Popup hides.<br /><em>Page content appears.</em></p>
         </div>
 
         <div class="panel">
@@ -351,9 +326,9 @@
           <div class="bubble">
             <strong>Cookie Notice</strong><br />
             This website doesn't use cookies.<br /><br />
-            <em>Got it, don't show again</em>
+            <em>Got it!</em>
           </div>
-          <p class="panel-caption">Page reloads. Popup appears again.<br /><em>Because: no cookies.</em></p>
+          <p class="panel-caption">User refreshes. Popup appears again.<br /><em>Because: no cookies.</em></p>
         </div>
       </div>
 
@@ -362,54 +337,23 @@
         <span class="icon">💡</span>
         <strong>Why does this keep appearing?</strong>
         <span>
-          Dismissing a cookie notice normally sets a <code>cookie</code> or uses <code>localStorage</code> — so the site
-          remembers you've seen it. But this site uses <em>neither</em>. Without any persistent storage, your preference
-          vanishes the moment you leave the page.
+          Dismissing a cookie notice normally sets a <code>cookie</code> or uses <code>localStorage</code> — so the
+          website remembers you've seen it. But this website uses <em>neither</em>. Without any persistent storage, your
+          preference vanishes the moment you leave or refresh the page.
         </span>
         <span>
-          The reload counter in the notice (<code>?n=…</code> in the URL) is the only "memory" here — and it resets the
-          moment you share the link or open a fresh tab.
+          Clicking "Got it!" just hides the overlay — no preference is ever stored. Refresh the tab and it's back, every
+          single time.
         </span>
       </div>
     </section>
 
-    <footer>This site sets exactly <strong>0 cookies</strong>. Ironically, that's the whole problem.</footer>
+    <footer>This website sets exactly <strong>0 cookies</strong>. Ironically, that's the whole problem.</footer>
 
     <script>
-      (function () {
-        var params = new URLSearchParams(window.location.search);
-        var count = parseInt(params.get("n") || "0", 10);
-        if (isNaN(count) || count < 0) count = 0;
-
-        var badge = document.getElementById("counter-badge");
-        if (count > 0) {
-          badge.textContent = "You've accepted this " + count + " time" + (count !== 1 ? "s" : "") + " already 👀";
-          badge.classList.remove("hidden");
-        }
-
-        window.acceptCookies = function () {
-          var btn = document.getElementById("accept-btn");
-          var notice = document.getElementById("saving-notice");
-          btn.disabled = true;
-          btn.textContent = "Saving preference…";
-
-          var dots = 0;
-          var interval = setInterval(function () {
-            dots = (dots + 1) % 4;
-            notice.textContent = "Hmm, this requires cookies" + ".".repeat(dots);
-          }, 320);
-
-          setTimeout(function () {
-            clearInterval(interval);
-            notice.textContent = "( couldn't save — no cookies! ) Reloading…";
-            setTimeout(function () {
-              var newCount = count + 1;
-              var url = window.location.pathname + "?n=" + newCount;
-              window.location.replace(url);
-            }, 900);
-          }, 1800);
-        };
-      })();
+      window.acceptCookies = function () {
+        document.getElementById("overlay").style.display = "none";
+      };
     </script>
   </body>
 </html>
