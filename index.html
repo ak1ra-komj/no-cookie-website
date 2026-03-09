@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>No Cookie Site</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #fafaf8;
+        --surface: #ffffff;
+        --border: #e2e2dc;
+        --text: #1a1a18;
+        --muted: #6b6b65;
+        --accent: #2563eb;
+        --accent-hover: #1d4ed8;
+        --panel-bg: #f4f4f0;
+        --bubble-bg: #ffffff;
+        --radius: 12px;
+        --shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          sans-serif;
+        line-height: 1.6;
+        min-height: 100vh;
+      }
+
+      /* ── overlay ── */
+      #overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        backdrop-filter: blur(3px);
+        animation: fade-in 0.25s ease;
+      }
+      @keyframes fade-in {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .modal {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 2rem;
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+        animation: pop-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      @keyframes pop-in {
+        from {
+          transform: scale(0.88);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .modal-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .modal h2 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.01em;
+      }
+
+      .modal p {
+        color: var(--muted);
+        font-size: 0.9rem;
+        margin-bottom: 0.35rem;
+      }
+
+      .modal p strong {
+        color: var(--text);
+      }
+
+      .counter-badge {
+        display: inline-block;
+        background: #fef3c7;
+        color: #92400e;
+        border: 1px solid #fcd34d;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        padding: 0.2rem 0.75rem;
+        margin: 0.6rem 0 0.9rem;
+      }
+      .counter-badge.hidden {
+        display: none;
+      }
+
+      #accept-btn {
+        display: block;
+        width: 100%;
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 0.7rem 1.2rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition:
+          background 0.15s,
+          opacity 0.15s;
+        margin-top: 0.8rem;
+      }
+      #accept-btn:hover:not(:disabled) {
+        background: var(--accent-hover);
+      }
+      #accept-btn:disabled {
+        opacity: 0.6;
+        cursor: default;
+      }
+
+      .saving-notice {
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin-top: 0.6rem;
+        min-height: 1.2em;
+      }
+
+      /* ── main content ── */
+      header {
+        text-align: center;
+        padding: 3.5rem 1rem 1.5rem;
+      }
+
+      header h1 {
+        font-size: clamp(1.6rem, 4vw, 2.4rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+      }
+
+      header p {
+        color: var(--muted);
+        margin-top: 0.4rem;
+        font-size: 0.95rem;
+      }
+
+      /* ── comic strip ── */
+      .comic {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1px;
+        background: var(--border);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        max-width: 860px;
+        margin: 2rem auto;
+      }
+
+      .panel {
+        background: var(--panel-bg);
+        padding: 1.4rem 1.2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        position: relative;
+      }
+
+      .panel-num {
+        position: absolute;
+        top: 0.5rem;
+        left: 0.6rem;
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: var(--muted);
+        letter-spacing: 0.05em;
+      }
+
+      .panel-fig {
+        font-size: 2.4rem;
+        line-height: 1;
+      }
+
+      .bubble {
+        background: var(--bubble-bg);
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.82rem;
+        line-height: 1.45;
+        position: relative;
+        max-width: 180px;
+        text-align: center;
+      }
+
+      .bubble::after {
+        content: "";
+        position: absolute;
+        bottom: -7px;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 6px solid transparent;
+        border-top-color: var(--border);
+      }
+
+      .bubble.up::after {
+        bottom: auto;
+        top: -7px;
+        border-top-color: transparent;
+        border-bottom-color: var(--border);
+      }
+
+      .panel-caption {
+        font-size: 0.78rem;
+        color: var(--muted);
+        text-align: center;
+        line-height: 1.4;
+      }
+
+      .panel-caption em {
+        font-style: italic;
+      }
+
+      /* ── tech note ── */
+      .tech-note {
+        max-width: 860px;
+        margin: 0 auto 4rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.4rem 1.6rem;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.5rem 1rem;
+        align-items: start;
+        font-size: 0.88rem;
+        color: var(--muted);
+      }
+
+      .tech-note .icon {
+        font-size: 1.3rem;
+        grid-row: span 3;
+        padding-top: 0.1rem;
+      }
+      .tech-note strong {
+        color: var(--text);
+        font-size: 0.9rem;
+      }
+      .tech-note code {
+        font-family: ui-monospace, "Fira Code", monospace;
+        font-size: 0.82em;
+        background: var(--panel-bg);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 0.05em 0.35em;
+      }
+
+      section {
+        padding: 0 1rem;
+      }
+
+      footer {
+        text-align: center;
+        padding: 2rem 1rem 3rem;
+        font-size: 0.82rem;
+        color: var(--muted);
+        border-top: 1px solid var(--border);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ── Cookie "Consent" Modal ── -->
+    <div id="overlay">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-icon">🍪</div>
+        <h2 id="modal-title">Cookie Notice</h2>
+        <p>This website <strong>doesn't use cookies</strong>.</p>
+        <p>No tracking. No analytics. No data collection. Nothing at all.</p>
+
+        <span id="counter-badge" class="counter-badge hidden"></span>
+
+        <button id="accept-btn" onclick="acceptCookies()">Got it, don't show again</button>
+        <p class="saving-notice" id="saving-notice"></p>
+      </div>
+    </div>
+
+    <!-- ── Page Content ── -->
+    <header>
+      <h1>No Cookie Site 🍪</h1>
+      <p>The world's most honest cookie notice experience</p>
+    </header>
+
+    <section>
+      <!-- Four-panel comic strip -->
+      <div class="comic" aria-label="Four-panel comic strip">
+        <div class="panel">
+          <span class="panel-num">1</span>
+          <div class="panel-fig">🧑‍💻</div>
+          <div class="bubble">Finally a website that respects my privacy!</div>
+          <p class="panel-caption">User visits the site.</p>
+        </div>
+
+        <div class="panel">
+          <span class="panel-num">2</span>
+          <div class="panel-fig">🍪</div>
+          <div class="bubble">
+            <strong>Cookie Notice</strong><br />
+            This website doesn't use cookies.<br /><br />
+            <em>Got it, don't show again</em>
+          </div>
+          <p class="panel-caption">A cookie notice appears immediately.</p>
+        </div>
+
+        <div class="panel">
+          <span class="panel-num">3</span>
+          <div class="panel-fig">🖱️</div>
+          <div class="bubble up">Got it!</div>
+          <div class="panel-fig" style="font-size: 1.2rem">...</div>
+          <div class="bubble">Saving your preference…</div>
+          <p class="panel-caption">User clicks the button.<br /><em>Preference is "saved".</em></p>
+        </div>
+
+        <div class="panel">
+          <span class="panel-num">4</span>
+          <div class="panel-fig">🔄</div>
+          <div class="bubble">
+            <strong>Cookie Notice</strong><br />
+            This website doesn't use cookies.<br /><br />
+            <em>Got it, don't show again</em>
+          </div>
+          <p class="panel-caption">Page reloads. Popup appears again.<br /><em>Because: no cookies.</em></p>
+        </div>
+      </div>
+
+      <!-- Tech explanation -->
+      <div class="tech-note">
+        <span class="icon">💡</span>
+        <strong>Why does this keep appearing?</strong>
+        <span>
+          Dismissing a cookie notice normally sets a <code>cookie</code> or uses <code>localStorage</code> — so the site
+          remembers you've seen it. But this site uses <em>neither</em>. Without any persistent storage, your preference
+          vanishes the moment you leave the page.
+        </span>
+        <span>
+          The reload counter in the notice (<code>?n=…</code> in the URL) is the only "memory" here — and it resets the
+          moment you share the link or open a fresh tab.
+        </span>
+      </div>
+    </section>
+
+    <footer>This site sets exactly <strong>0 cookies</strong>. Ironically, that's the whole problem.</footer>
+
+    <script>
+      (function () {
+        var params = new URLSearchParams(window.location.search);
+        var count = parseInt(params.get("n") || "0", 10);
+        if (isNaN(count) || count < 0) count = 0;
+
+        var badge = document.getElementById("counter-badge");
+        if (count > 0) {
+          badge.textContent = "You've accepted this " + count + " time" + (count !== 1 ? "s" : "") + " already 👀";
+          badge.classList.remove("hidden");
+        }
+
+        window.acceptCookies = function () {
+          var btn = document.getElementById("accept-btn");
+          var notice = document.getElementById("saving-notice");
+          btn.disabled = true;
+          btn.textContent = "Saving preference…";
+
+          var dots = 0;
+          var interval = setInterval(function () {
+            dots = (dots + 1) % 4;
+            notice.textContent = "Hmm, this requires cookies" + ".".repeat(dots);
+          }, 320);
+
+          setTimeout(function () {
+            clearInterval(interval);
+            notice.textContent = "( couldn't save — no cookies! ) Reloading…";
+            setTimeout(function () {
+              var newCount = count + 1;
+              var url = window.location.pathname + "?n=" + newCount;
+              window.location.replace(url);
+            }, 900);
+          }, 1800);
+        };
+      })();
+    </script>
+  </body>
+</html>
